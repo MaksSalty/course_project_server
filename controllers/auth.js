@@ -1,5 +1,6 @@
 import UserModel from '../models/User.js'
 import jwt from 'jsonwebtoken'
+import bcrypt from 'bcrypt'
 
 export const register = async (req, res) => {
   try {
@@ -8,7 +9,9 @@ export const register = async (req, res) => {
     if (isUsed) {
       return res.json({ message: 'Name already in use' })
     }
-    const newUser = new UserModel({ username, password })
+    const salt = bcrypt.genSaltSync(10)
+    const hash = bcrypt.hashSync(password, salt)
+    const newUser = new UserModel({ username, password: hash })
     const token = jwt.sign({ id: newUser._id }, process.env.JWT)
     await newUser.save()
     res.json({ newUser, token, message: 'You are registered' })
@@ -24,7 +27,8 @@ export const login = async (req, res) => {
     if (!user) {
       return res.json({ message: 'User is not found' })
     }
-    if (password !== user.password) {
+    const isPasswordCorrect = await bcrypt.compare(password, user.password)
+    if (!isPasswordCorrect) {
       return res.json({ message: 'Wrong password' })
     }
     const token = jwt.sign({ id: user._id }, process.env.JWT)

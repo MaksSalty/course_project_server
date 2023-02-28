@@ -4,6 +4,8 @@ import dotenv from 'dotenv'
 import cors from 'cors'
 
 import authRoute from './routes/auth.js'
+import collectRoute from './routes/collects.js'
+import commentRoute from './routes/comments.js'
 
 const app = express()
 dotenv.config()
@@ -12,6 +14,8 @@ app.use(cors())
 app.use(express.json())
 
 app.use('/auth', authRoute)
+app.use('/collects', collectRoute)
+app.use('/comments', commentRoute)
 
 mongoose.set('strictQuery', false)
 mongoose
